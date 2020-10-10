@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "io.coded.minecraft-datadog",
+  "version": "${version}",
+
+  "name": "Minecraft Datadog Stats",
+  "description": "Export Minecraft stats and events via Datadog.",
+  "authors": [
+    "belak"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/TheRavine/minecraft-datadog-mod"
+  },
+
+  "license": "MIT",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.coded.minecraft-datadog.StatsMod"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
