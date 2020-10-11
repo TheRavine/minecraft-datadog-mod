@@ -5,6 +5,9 @@ import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientErrorHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerManager;
+import net.minecraft.world.dimension.DimensionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,10 +31,22 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
             return;
         }
 
-        LOGGER.info("logging player event to Datadog");
+        LOGGER.debug("logging player event to Datadog");
 
         StatsMod.client.gauge("players", currentPlayerCount);
         StatsMod.client.gauge("maxPlayers", maxPlayerCount);
+    }
+
+    public static void reportChunks(String dimension, int loadedChunkCount) {
+        StatsMod.client.gauge("chunks", loadedChunkCount, "mc_dimension:" + dimension);
+        //LOGGER.info("Dimension {} has {} loaded chunks", dimension, loadedChunkCount);
+    }
+
+    public static void reportEntities(String dimension, int entityCount, int blockEntityCount, int tickingBlockEntityCount) {
+        StatsMod.client.gauge("entities", entityCount, "mc_dimension:"+dimension);
+        StatsMod.client.gauge("blockEntities", blockEntityCount, "mc_dimension:"+dimension);
+        StatsMod.client.gauge("tickingBlockEntities", tickingBlockEntityCount, "mc_dimension:"+dimension);
+        //LOGGER.info("Dimension {} has {} entities, {} block entities, and {} ticking block entities", dimension, entityCount, blockEntityCount, tickingBlockEntityCount);
     }
 
     @Override
