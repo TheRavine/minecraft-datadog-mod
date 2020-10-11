@@ -1,6 +1,14 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
 	id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 	id 'maven-publish'
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -21,6 +29,16 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
+
+    // jar-in-jar isn't enough for this. Because there's some extra crappy class-loading
+    // crap, it's just way easier to include the entire dogstatsd client inside the
+    // plugin jar.
+    shade "com.datadoghq:java-dogstatsd-client:2.10.3"
+    implementation "com.datadoghq:java-dogstatsd-client:2.10.3"
+
+    // For some reason, the native deps don't actually get picked up when we depend
+    // on the dogstatsd client, so we need to manually tell gradle to include them.
+    shade "com.github.jnr:jffi:1.2.23:native"
 }
 
 processResources {
@@ -53,6 +71,18 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from "LICENSE"
+}
+
+shadowJar {
+    configurations = [project.configurations.shade]
+
+    mergeServiceFiles()
+}
+
+// This task needs to be used rather than shadowJar or jar, or various problems will happen.
+task remapShadowJar(type: RemapJarTask, dependsOn: tasks.shadowJar) {
+    input = tasks.shadowJar.archivePath
+    addNestedDependencies = true
 }
 
 // configure the maven publication

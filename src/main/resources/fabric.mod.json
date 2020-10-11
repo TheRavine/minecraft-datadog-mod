@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "io.coded.minecraft-datadog",
+  "id": "minecraft-datadog",
   "version": "${version}",
 
   "name": "Minecraft Datadog Stats",
@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "io.coded.minecraft-datadog.StatsMod"
+      "io.coded.minecraft_datadog.StatsMod"
     ]
   },
   "mixins": [
