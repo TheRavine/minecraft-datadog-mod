@@ -5,10 +5,10 @@ import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientErrorHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.UUID;
 
 public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
     public static final Logger LOGGER = LogManager.getLogger("DatadogStatsMod");
@@ -24,7 +24,7 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
         StatsMod.client.histogram("tick", currentTickLength);
     }
 
-    public static void reportPlayers(PlayerManager manager) {
+    public static void reportPlayers(int currentPlayerCount, int maxPlayerCount) {
         if (StatsMod.client == null) {
             LOGGER.warn("Datadog Client is null");
             return;
@@ -32,15 +32,8 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
 
         LOGGER.debug("logging player event to Datadog");
 
-        String[] tags = new String[2];
-        for (ServerPlayerEntity player : manager.getPlayerList()) {
-            tags[0] = "mc_player_uuid:" + player.getUuidAsString();
-            tags[1] = "mc_player_name:" + player.getEntityName();
-
-            StatsMod.client.increment("players", tags);
-        }
-
-        StatsMod.client.gauge("maxPlayers", manager.getMaxPlayerCount());
+        StatsMod.client.gauge("players", currentPlayerCount);
+        StatsMod.client.gauge("maxPlayers", maxPlayerCount);
     }
 
     public static void reportChunks(String dimension, int loadedChunkCount) {
@@ -59,14 +52,14 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
             return;
         }
 
-        StatsMod.client.gauge("entities", entityCount, "mc_dimension:" + dimension);
-        StatsMod.client.gauge("blockEntities", blockEntityCount, "mc_dimension:" + dimension);
-        StatsMod.client.gauge("tickingBlockEntities", tickingBlockEntityCount, "mc_dimension:" + dimension);
+        StatsMod.client.gauge("entities", entityCount, "mc_dimension:"+dimension);
+        StatsMod.client.gauge("blockEntities", blockEntityCount, "mc_dimension:"+dimension);
+        StatsMod.client.gauge("tickingBlockEntities", tickingBlockEntityCount, "mc_dimension:"+dimension);
 
         //LOGGER.info("Dimension {} has {} entities, {} block entities, and {} ticking block entities", dimension, entityCount, blockEntityCount, tickingBlockEntityCount);
     }
 
-    public static void reportDeath(ServerPlayerEntity player, String deathReason, String deathActor, String deathWeapon) {
+    public static void reportDeath(UUID uuid, String playerName, String deathReason, String deathActor, String deathWeapon) {
         if (StatsMod.client == null) {
             LOGGER.warn("Datadog Client is null");
             return;
@@ -79,11 +72,11 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
         int i = 0;
 
         String[] tags = new String[tagCount];
-        tags[i++] = "mc_player_uuid:" + player.getUuidAsString();
-        tags[i++] = "mc_player_name:" + player.getEntityName();
-        tags[i++] = "mc_death_reason:" + deathReason;
-        if (deathActor != null) tags[i++] = "mc_death_actor:" + deathActor;
-        if (deathWeapon != null) tags[i] = "mc_death_weapon:" + deathWeapon;
+        tags[i++] = "mc_player_uuid:"+uuid.toString();
+        tags[i++] = "mc_player_name:"+playerName;
+        tags[i++] = "mc_death_reason:"+deathReason;
+        if (deathActor != null) tags[i++] = "mc_death_actor:"+deathActor;
+        if (deathWeapon != null) tags[i] = "mc_death_weapon:"+deathWeapon;
 
         StatsMod.client.count("player.death", 1, tags);
     }

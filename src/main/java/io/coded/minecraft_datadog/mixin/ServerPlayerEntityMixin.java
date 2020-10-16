@@ -50,6 +50,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
             }
         }
 
-        StatsMod.reportDeath((ServerPlayerEntity) (Object) this, deathMessage.getKey(), deathActor, deathWeapon);
+        StatsMod.reportDeath(this.getUuid(), this.getGameProfile().getName(), deathMessage.getKey(), deathActor, deathWeapon);
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.level.ServerWorldProperties;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,15 +42,19 @@ public abstract class MinecraftServerMixin {
 
         if (this.ticks % 300 == 0) {
             PlayerManager playerManager = this.getPlayerManager();
-            StatsMod.reportPlayers(playerManager);
-        } else if (this.ticks % 300 == 100) {
+            StatsMod.reportPlayers(playerManager.getCurrentPlayerCount(), playerManager.getMaxPlayerCount());
+        }
+
+         else if (this.ticks % 300 == 100) {
             for (ServerWorld world : this.getWorlds()) {
                 String dimensionName = world.getRegistryKey().getValue().toString();
                 StatsMod.reportChunks(
                         dimensionName,
                         world.getChunkManager().getLoadedChunkCount());
             }
-        } else if (this.ticks % 300 == 200) {
+        }
+
+         else if (this.ticks % 300 == 200) {
             for (ServerWorld world : this.getWorlds()) {
                 String dimensionName = world.getRegistryKey().getValue().toString();
                 Int2ObjectMap<Entity> entities = ((ServerWorldAccessor) world).getEntitiesById();
