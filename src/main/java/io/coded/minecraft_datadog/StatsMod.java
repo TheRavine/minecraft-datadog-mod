@@ -46,17 +46,16 @@ public class StatsMod implements ModInitializer, StatsDClientErrorHandler {
         //LOGGER.info("Dimension {} has {} loaded chunks", dimension, loadedChunkCount);
     }
 
-    public static void reportEntities(String dimension, int entityCount, int blockEntityCount, int tickingBlockEntityCount) {
+    public static void reportEntities(String dimension, int entityCount, int tickingBlockEntityCount) {
         if (StatsMod.client == null) {
             LOGGER.warn("Datadog Client is null");
             return;
         }
 
         StatsMod.client.gauge("entities", entityCount, "mc_dimension:"+dimension);
-        StatsMod.client.gauge("blockEntities", blockEntityCount, "mc_dimension:"+dimension);
         StatsMod.client.gauge("tickingBlockEntities", tickingBlockEntityCount, "mc_dimension:"+dimension);
 
-        //LOGGER.info("Dimension {} has {} entities, {} block entities, and {} ticking block entities", dimension, entityCount, blockEntityCount, tickingBlockEntityCount);
+        //LOGGER.info("Dimension {} has {} entities, and {} ticking block entities", dimension, entityCount, tickingBlockEntityCount);
     }
 
     public static void reportDeath(UUID uuid, String playerName, String deathReason, String deathActor, String deathWeapon) {

@@ -5,7 +5,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
+import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.EntityIndex;
+import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.level.ServerWorldProperties;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -57,12 +60,18 @@ public abstract class MinecraftServerMixin {
          else if (this.ticks % 300 == 200) {
             for (ServerWorld world : this.getWorlds()) {
                 String dimensionName = world.getRegistryKey().getValue().toString();
-                Int2ObjectMap<Entity> entities = ((ServerWorldAccessor) world).getEntitiesById();
+
+                ServerWorldAccessor swa = ((ServerWorldAccessor) world);
+                WorldAccessor wa = ((WorldAccessor) world);
+
+                // Grab the EntityIndex so we can get the count
+                ServerEntityManager<Entity> entityManager = swa.getEntityManager();
+                EntityIndex<Entity> entityIndex = ((ServerEntityManagerAccessor) entityManager).getEntityIndex();
+
                 StatsMod.reportEntities(
                         dimensionName,
-                        entities.size(),
-                        world.blockEntities.size(),
-                        world.tickingBlockEntities.size());
+                        entityIndex.size(),
+                        wa.getBlockEntityTickers().size());
             }
         }
     }

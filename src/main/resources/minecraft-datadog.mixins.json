@@ -7,7 +7,9 @@
     "MinecraftServerMixin",
     "PlayerManagerMixin",
     "ServerPlayerEntityMixin",
-    "ServerWorldAccessor"
+    "ServerWorldAccessor",
+    "ServerEntityManagerAccessor",
+    "WorldAccessor"
   ],
   "client": [],
   "injectors": {
